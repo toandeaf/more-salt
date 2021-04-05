@@ -1,0 +1,22 @@
+version: '3'
+services:
+  postgres-service:
+    image: postgres:latest
+    container_name: postgres-container
+    ports:
+      - 5432:5432/tcp
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: docker
+    volumes:
+#      - ./data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d
+#  moresalt-service:
+#    ports:
+#      - 8080:8080/tcp
+#    depends_on:
+#      - postgres-service
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile

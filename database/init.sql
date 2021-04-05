@@ -1,0 +1,213 @@
+-- create sequence hibernate_sequence;
+--
+-- alter sequence hibernate_sequence owner to postgres;
+--
+-- create table "user"
+-- (
+--     id bigint not null
+--         constraint user_pkey
+--             primary key,
+--     email varchar(255),
+--     password varchar(255),
+--     username varchar(255),
+--     ambitions_id bigint,
+--     tasteprofile_id bigint
+-- );
+--
+-- alter table "user" owner to postgres;
+--
+-- create table ambition
+-- (
+--     id bigint not null
+--         constraint ambition_pkey
+--             primary key,
+--     ambitionone varchar(255),
+--     ambitiontwo varchar(255)
+-- );
+--
+-- alter table ambition owner to postgres;
+--
+-- create table cuisine
+-- (
+--     id bigint not null
+--         constraint cuisine_pkey
+--             primary key,
+--     cuisine integer
+-- );
+--
+-- alter table cuisine owner to postgres;
+--
+-- create table ingredient
+-- (
+--     id bigint not null
+--         constraint ingredient_pkey
+--             primary key,
+--     name varchar(255)
+-- );
+--
+-- alter table ingredient owner to postgres;
+--
+-- create table recipe
+-- (
+--     id bigint not null
+--         constraint recipe_pkey
+--             primary key,
+--     name varchar(255)
+-- );
+--
+-- alter table recipe owner to postgres;
+--
+-- create table cook
+-- (
+--     id bigint not null
+--         constraint cook_pkey
+--             primary key,
+--     feedback_id bigint,
+--     recipecooked_id bigint
+--         constraint fk40rc4kgoop961y8yxjp6vn01k
+--             references recipe
+-- );
+--
+-- alter table cook owner to postgres;
+--
+-- create table cook_feedback
+-- (
+--     id bigint not null
+--         constraint cook_feedback_pkey
+--             primary key,
+--     cook_id bigint
+--         constraint fkenruuecqwhppqxbjg09eqa5he
+--             references cook
+-- );
+--
+-- alter table cook_feedback owner to postgres;
+--
+-- alter table cook
+--     add constraint fkp6p8jqhcw3g0pq4m7fqxpvte6
+--         foreign key (feedback_id) references cook_feedback;
+--
+-- create table recipe_cuisine
+-- (
+--     recipe_id bigint not null
+--         constraint fkl4fuj1t1mq9llh47xenyi9wai
+--             references recipe,
+--     cuisine_id bigint not null
+--         constraint uk_hrkncy80rwk2iu8t1vuv5cldg
+--             unique
+--         constraint fk5coeon3ax9pt2ro25kipre173
+--             references cuisine,
+--     constraint recipe_cuisine_pkey
+--         primary key (recipe_id, cuisine_id)
+-- );
+--
+-- alter table recipe_cuisine owner to postgres;
+--
+-- create table recipe_flex
+-- (
+--     id bigint not null
+--         constraint recipe_flex_pkey
+--             primary key,
+--     baserecipe_id bigint
+--         constraint fk7df2srvmjyb6so0p0dl8qsi6j
+--             references recipe
+-- );
+--
+-- alter table recipe_flex owner to postgres;
+--
+-- create table step
+-- (
+--     id bigint not null
+--         constraint step_pkey
+--             primary key,
+--     description varchar(255),
+--     name varchar(255)
+-- );
+--
+-- alter table step owner to postgres;
+--
+-- create table recipe_flex_step
+-- (
+--     recipeflex_id bigint not null
+--         constraint fkcpg0p6th97g7a8pqpypdccest
+--             references recipe_flex,
+--     steps_id bigint not null
+--         constraint uk_4r96ee3cjj39nk8ah3656fqn2
+--             unique
+--         constraint fkhbl0f8am7n5vxi6vu8af0gxin
+--             references step,
+--     constraint recipe_flex_step_pkey
+--         primary key (recipeflex_id, steps_id)
+-- );
+--
+-- alter table recipe_flex_step owner to postgres;
+--
+-- create table recipe_step
+-- (
+--     recipe_id bigint not null
+--         constraint fklmvipa0fw0p29wjd9tcym7k0v
+--             references recipe,
+--     steps_id bigint not null
+--         constraint uk_k5te3ss7kcoc0ntt0hinhiwf2
+--             unique
+--         constraint fklw0bhm65jh7gtn2soqt8e2s4u
+--             references step,
+--     constraint recipe_step_pkey
+--         primary key (recipe_id, steps_id)
+-- );
+--
+-- alter table recipe_step owner to postgres;
+--
+-- create table step_ingredient
+-- (
+--     step_id bigint not null
+--         constraint fkpvfpehqjtmk63akicba7dq552
+--             references step,
+--     ingredient_id bigint not null
+--         constraint uk_mfnarfw66lass2t3y4d9xnqyl
+--             unique
+--         constraint fkj09fjjcdjc0y6umxmega2i993
+--             references ingredient,
+--     constraint step_ingredient_pkey
+--         primary key (step_id, ingredient_id)
+-- );
+--
+-- alter table step_ingredient owner to postgres;
+--
+-- create table taste_profile
+-- (
+--     id bigint not null
+--         constraint taste_profile_pkey
+--             primary key,
+--     bitterness integer not null,
+--     sweetness integer not null
+-- );
+--
+-- alter table taste_profile owner to postgres;
+--
+-- create table tool
+-- (
+--     id bigint not null
+--         constraint tool_pkey
+--             primary key,
+--     complexity integer not null,
+--     name varchar(255),
+--     type varchar(255)
+-- );
+--
+-- alter table tool owner to postgres;
+--
+-- create table step_tool
+-- (
+--     step_id bigint not null
+--         constraint fkinq3rqn2qvab9bxj9jcy4hl33
+--             references step,
+--     tools_id bigint not null
+--         constraint uk_jheft9pte25pcgsi99g0fg9u4
+--             unique
+--         constraint fkot1j7e1v841y6hx7vig76egc5
+--             references tool,
+--     constraint step_tool_pkey
+--         primary key (step_id, tools_id)
+-- );
+--
+-- alter table step_tool owner to postgres;

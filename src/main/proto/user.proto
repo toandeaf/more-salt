@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.moresalt.grpc";
+option java_outer_classname = "UserProto";
+
+package moresalt.user;
+
+service UserService {
+    // Sends a greeting
+    rpc UserSearch (UserSearchRequest) returns (UserSearchResponse) {}
+}
+
+// The request message containing the user's name.
+message UserSearchRequest {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message UserSearchResponse {
+  User user = 1;
+}
+
+message User {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+}
+
+// The response message containing the greetings
+message UserResponse {
+    string message = 1;
+}
