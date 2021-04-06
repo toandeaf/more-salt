@@ -15,7 +15,7 @@ open class User
     open var email: String = "",
     open var password: String = "",
     @OneToOne(cascade = [CascadeType.ALL]) open var tasteProfile: TasteProfile? = null,
-    @OneToOne(cascade = [CascadeType.ALL]) open var ambitions: com.moresalt.user.model.Ambition? = null
+    @OneToOne(cascade = [CascadeType.ALL]) open var ambitions: Ambition? = null
 ) : PanacheEntity() {
     companion object {
         fun parseFromGrpc(user: GrpcUser): User {

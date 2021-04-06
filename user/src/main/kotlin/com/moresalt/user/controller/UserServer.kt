@@ -1,23 +1,22 @@
 package com.moresalt.user.controller
 
-
-
-import com.moresalt.grpc.user.User
+import com.moresalt.grpc.user.MutinyUserServiceGrpc
 import com.moresalt.grpc.user.UserRequest
 import com.moresalt.grpc.user.UserResponse
-import com.moresalt.grpc.user.UserServiceGrpc
 import com.moresalt.user.service.UserService
-import io.grpc.stub.StreamObserver
+import io.smallrye.common.annotation.Blocking
+import io.smallrye.mutiny.Uni
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class UserServer: UserServiceGrpc.UserServiceImplBase() {
+class UserServer: MutinyUserServiceGrpc.UserServiceImplBase() {
 
     @Inject
     lateinit var userService: UserService
-    override fun processUserRequest(request: UserRequest?, responseObserver: StreamObserver<UserResponse>?) {
-        userService.processRequest(request!!.process, request.user)
-        responseObserver?.onCompleted()
+
+    @Blocking
+    override fun processUserRequest(request: UserRequest?): Uni<UserResponse> {
+        return userService.processRequest(request!!.process, request.user)
     }
 }
