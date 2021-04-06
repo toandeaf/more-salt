@@ -1,63 +1,70 @@
 package com.moresalt.api.controller.rest
 
-import com.moresalt.api.model.Ambition
-import com.moresalt.api.model.TasteProfile
-import com.moresalt.api.model.User
-import com.moresalt.api.service.UserService
-import javax.inject.Inject
+import com.moresalt.grpc.user.UserRequest
+import com.moresalt.grpc.user.UserServiceGrpc
+import com.moresalt.user.client.UserClient
+import com.moresalt.user.model.User
+import javax.annotation.PostConstruct
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
+import com.moresalt.grpc.user.User as GrpcUser
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
 class UserController {
+    private val userClient: UserClient = UserClient()
+    private lateinit var userStub: UserServiceGrpc.UserServiceBlockingStub
 
-    @Inject
-    lateinit var userService: UserService
+    @PostConstruct
+    private fun init() {
+        userStub = userClient.blockingStub
+    }
 
     @GET
     @Path("/{userId}")
-    fun fetchUser(@PathParam("userId") userId: Long): User? {
-        return userService.fetchUser(userId)
+    fun fetchUser(@PathParam("userId") userId: Long): Any {
+        val response = userStub.processUserRequest(
+            UserRequest.newBuilder()
+                .setUser(GrpcUser.newBuilder()
+                        .setId(userId)
+                        .build()
+                )
+                .setProcess(UserRequest.Process.FETCH)
+                .build()
+        )
+        return User.parseFromGrpc(response.user)
     }
 
     @POST
-    fun createUser(user: User) {
-        return userService.createUser(user)
+    fun createUser(user: User): User {
+        val response = userStub.processUserRequest(
+            UserRequest.newBuilder()
+                .setUser(User.convertToGrpc(user))
+                .setProcess(UserRequest.Process.CREATE)
+                .build()
+        )
+        return User.parseFromGrpc(response.user)
     }
 
     @DELETE
-    fun deleteUser(user: User) {
-        return userService.deleteUser(user)
+    fun deleteUser(user: User): User {
+        val response = userStub.processUserRequest(
+            UserRequest.newBuilder()
+                .setUser(User.convertToGrpc(user))
+                .setProcess(UserRequest.Process.DELETE)
+                .build()
+        )
+        return User.parseFromGrpc(response.user)
     }
 
     @PUT
-    fun updateUser(user: User) {
-        return userService.updateUser(user)
-    }
-
-    @GET
-    @Path("/test")
-    fun testUser(): String {
-        val user = User()
-        user.email = "test@email.com"
-        user.password = "testpass"
-        user.username = "testuser"
-
-        val tasteProfile = TasteProfile()
-        tasteProfile.bitterness = 5
-        tasteProfile.sweetness = 5
-        user.tasteProfile = tasteProfile
-
-        val ambition = Ambition()
-        ambition.complexity = "COMPLEX"
-        ambition.instructions = "HEAVY"
-        ambition.social = "SOCIAL"
-        ambition.variety = "VARIOUS"
-        user.ambitions = ambition
-
-        userService.createUser(user)
-
-        return "Worked!"
+    fun updateUser(user: User): User {
+        val response = userStub.processUserRequest(
+            UserRequest.newBuilder()
+                .setUser(User.convertToGrpc(user))
+                .setProcess(UserRequest.Process.UPDATE)
+                .build()
+        )
+        return User.parseFromGrpc(response.user)
     }
 }

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.moresalt.grpc.user";
+option java_outer_classname = "UserProto";
+
+package com.moresalt.grpc.user;
+
+service UserService {
+  rpc ProcessUserRequest (UserRequest) returns (UserResponse) {}
+}
+
+message UserRequest {
+  User user = 1;
+  Process process = 2;
+  enum Process {
+    CREATE = 0;
+    FETCH = 1;
+    UPDATE = 2;
+    DELETE = 3;
+  }
+}
+
+message UserResponse {
+  User user = 1;
+  Status status = 2;
+}
+
+message User {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message Status {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+}

@@ -1,9 +1,8 @@
-package com.moresalt.api.dao
+package com.moresalt.user.dao
 
-import com.moresalt.api.model.User
+import com.moresalt.user.model.User
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepository
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
- class UserRepository: PanacheRepository<User> {
-}
+class UserRepository: PanacheRepository<User>
