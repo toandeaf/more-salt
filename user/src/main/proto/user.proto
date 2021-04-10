@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.moresalt.grpc.user";
+option java_outer_classname = "UserProto";
+
+package com.moresalt.grpc.user;
+
+service UserService {
+  rpc processUserRequest (UserRequest) returns (UserResponse) {}
+}
+
+message UserRequest {
+  User user = 1;
+  Type type = 2;
+  Process process = 3;
+}
+
+message UserResponse {
+  User user = 1;
+  Status status = 2;
+}
+
+message User {
+  int64 id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  TasteProfile tasteProfile = 5;
+  Ambition ambition = 6;
+}
+
+message TasteProfile {
+  int32 sweetness = 1;
+  int32 bitterness = 2;
+}
+
+message Ambition {
+  string instructions = 1;
+  string variety = 2;
+  string complexity = 3;
+  string social = 4;
+}
+
+message Status {
+  bool success = 1;
+  int32 code = 2;
+  string message = 3;
+}
+
+enum Process {
+  CREATE = 0;
+  FETCH = 1;
+  UPDATE = 2;
+  DELETE = 3;
+}
+
+enum Type {
+  USER = 0;
+  AMBITION = 1;
+  TASTE = 2;
+}

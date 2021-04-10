@@ -1,9 +1,12 @@
 package com.moresalt.api.controller.rest
 
-import com.moresalt.api.model.Ambition
-import com.moresalt.api.model.TasteProfile
-import com.moresalt.api.model.User
-import com.moresalt.api.service.UserService
+import com.moresalt.grpc.user.MutinyUserServiceGrpc
+import com.moresalt.grpc.user.Process
+import com.moresalt.grpc.user.Type
+import com.moresalt.grpc.user.UserRequest
+import com.moresalt.user.model.User
+import io.quarkus.grpc.runtime.annotations.GrpcService
+import io.smallrye.mutiny.Uni
 import javax.inject.Inject
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -13,51 +16,43 @@ import javax.ws.rs.core.MediaType
 class UserController {
 
     @Inject
-    lateinit var userService: UserService
+    @GrpcService("user")
+    lateinit var userClient: MutinyUserServiceGrpc.MutinyUserServiceStub
 
     @GET
     @Path("/{userId}")
-    fun fetchUser(@PathParam("userId") userId: Long): User? {
-        return userService.fetchUser(userId)
+    fun fetchUser(@PathParam("userId") userId: Long): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.FETCH, User(id = userId)))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
     @POST
-    fun createUser(user: User) {
-        return userService.createUser(user)
+    fun createUser(user: User): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.CREATE, user))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
     @DELETE
-    fun deleteUser(user: User) {
-        return userService.deleteUser(user)
+    fun deleteUser(user: User): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.DELETE, user))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
     @PUT
-    fun updateUser(user: User) {
-        return userService.updateUser(user)
+    fun updateUser(user: User): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.UPDATE, user))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
-    @GET
-    @Path("/test")
-    fun testUser(): String {
-        val user = User()
-        user.email = "test@email.com"
-        user.password = "testpass"
-        user.username = "testuser"
-
-        val tasteProfile = TasteProfile()
-        tasteProfile.bitterness = 5
-        tasteProfile.sweetness = 5
-        user.tasteProfile = tasteProfile
-
-        val ambition = Ambition()
-        ambition.complexity = "COMPLEX"
-        ambition.instructions = "HEAVY"
-        ambition.social = "SOCIAL"
-        ambition.variety = "VARIOUS"
-        user.ambitions = ambition
-
-        userService.createUser(user)
-
-        return "Worked!"
+    private fun userRequest(process: Process, user: User): UserRequest {
+        return UserRequest.newBuilder()
+            .setUser(User.convertToGrpc(user))
+            .setProcess(process)
+            .setType(Type.USER)
+            .build()
     }
 }
