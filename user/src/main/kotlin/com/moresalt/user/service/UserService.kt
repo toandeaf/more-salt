@@ -1,15 +1,16 @@
 package com.moresalt.user.service
 
+import com.moresalt.grpc.user.Process
 import com.moresalt.grpc.user.Status
-import com.moresalt.grpc.user.UserRequest
 import com.moresalt.grpc.user.UserResponse
 import com.moresalt.user.dao.UserRepository
 import com.moresalt.user.model.User
+import io.smallrye.common.annotation.Blocking
 import io.smallrye.mutiny.Uni
+import io.smallrye.mutiny.groups.UniSubscribe
 import javax.inject.Inject
 import javax.inject.Singleton
 import javax.transaction.Transactional
-
 import com.moresalt.grpc.user.User as GrpcUser
 
 @Singleton
@@ -20,32 +21,42 @@ open class UserService {
     open lateinit var repo: UserRepository
 
     private fun createUser(user: User): User {
+        println("Trying to create")
+
         repo.persist(user)
         return user
     }
 
     private fun fetchUser(user: User): User? {
-        return repo.findById(user.id!!)
+        println("Trying to fetch")
+        println(user)
+        val userrr = repo.findById(user.id!!)
+        println(userrr)
+        return userrr
     }
 
     private fun updateUser(user: User): User {
+        println("Trying to update")
         repo.persist(user)
         return user
     }
 
     private fun deleteUser(user: User): User {
+        println("Trying to delete")
         repo.delete(user)
         return user
     }
 
-    fun processRequest(process: UserRequest.Process, user: GrpcUser): Uni<UserResponse> {
+    fun processRequest(process: Process, user: GrpcUser): Uni<UserResponse> {
         val function = when (process) {
-            UserRequest.Process.CREATE -> ::createUser
-            UserRequest.Process.FETCH -> ::fetchUser
-            UserRequest.Process.UPDATE -> ::updateUser
-            UserRequest.Process.DELETE -> ::deleteUser
+            Process.CREATE -> ::createUser
+            Process.FETCH -> ::fetchUser
+            Process.UPDATE -> ::updateUser
+            Process.DELETE -> ::deleteUser
             else -> ::returnError
         }
+
+        println("Returning")
 
         return Uni.createFrom()
             .item(function(User.parseFromGrpc(user)))
@@ -54,6 +65,7 @@ open class UserService {
     }
 
     private fun returnError(user: User): User? {
+        println(user)
         return null
     }
 

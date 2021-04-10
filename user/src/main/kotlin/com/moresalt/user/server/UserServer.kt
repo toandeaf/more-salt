@@ -1,4 +1,4 @@
-package com.moresalt.user.controller
+package com.moresalt.user.server
 
 import com.moresalt.grpc.user.MutinyUserServiceGrpc
 import com.moresalt.grpc.user.UserRequest

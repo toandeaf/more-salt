@@ -1,70 +1,58 @@
 package com.moresalt.api.controller.rest
 
+import com.moresalt.grpc.user.MutinyUserServiceGrpc
+import com.moresalt.grpc.user.Process
+import com.moresalt.grpc.user.Type
 import com.moresalt.grpc.user.UserRequest
-import com.moresalt.grpc.user.UserServiceGrpc
-import com.moresalt.user.client.UserClient
 import com.moresalt.user.model.User
-import javax.annotation.PostConstruct
+import io.quarkus.grpc.runtime.annotations.GrpcService
+import io.smallrye.mutiny.Uni
+import javax.inject.Inject
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import com.moresalt.grpc.user.User as GrpcUser
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
 class UserController {
-    private val userClient: UserClient = UserClient()
-    private lateinit var userStub: UserServiceGrpc.UserServiceBlockingStub
 
-    @PostConstruct
-    private fun init() {
-        userStub = userClient.blockingStub
-    }
+    @Inject
+    @GrpcService("user")
+    lateinit var userClient: MutinyUserServiceGrpc.MutinyUserServiceStub
 
     @GET
     @Path("/{userId}")
-    fun fetchUser(@PathParam("userId") userId: Long): Any {
-        val response = userStub.processUserRequest(
-            UserRequest.newBuilder()
-                .setUser(GrpcUser.newBuilder()
-                        .setId(userId)
-                        .build()
-                )
-                .setProcess(UserRequest.Process.FETCH)
-                .build()
-        )
-        return User.parseFromGrpc(response.user)
+    fun fetchUser(@PathParam("userId") userId: Long): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.FETCH, User(id = userId)))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
     @POST
-    fun createUser(user: User): User {
-        val response = userStub.processUserRequest(
-            UserRequest.newBuilder()
-                .setUser(User.convertToGrpc(user))
-                .setProcess(UserRequest.Process.CREATE)
-                .build()
-        )
-        return User.parseFromGrpc(response.user)
+    fun createUser(user: User): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.CREATE, user))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
     @DELETE
-    fun deleteUser(user: User): User {
-        val response = userStub.processUserRequest(
-            UserRequest.newBuilder()
-                .setUser(User.convertToGrpc(user))
-                .setProcess(UserRequest.Process.DELETE)
-                .build()
-        )
-        return User.parseFromGrpc(response.user)
+    fun deleteUser(user: User): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.DELETE, user))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
     }
 
     @PUT
-    fun updateUser(user: User): User {
-        val response = userStub.processUserRequest(
-            UserRequest.newBuilder()
-                .setUser(User.convertToGrpc(user))
-                .setProcess(UserRequest.Process.UPDATE)
-                .build()
-        )
-        return User.parseFromGrpc(response.user)
+    fun updateUser(user: User): Uni<User> {
+        return userClient.processUserRequest(userRequest(Process.UPDATE, user))
+            .onItem()
+            .transform { User.parseFromGrpc(it.user) }
+    }
+
+    private fun userRequest(process: Process, user: User): UserRequest {
+        return UserRequest.newBuilder()
+            .setUser(User.convertToGrpc(user))
+            .setProcess(process)
+            .setType(Type.USER)
+            .build()
     }
 }
