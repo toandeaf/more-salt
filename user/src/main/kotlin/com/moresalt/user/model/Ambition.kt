@@ -1,39 +1,33 @@
 package com.moresalt.user.model
 
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntity
+import io.quarkus.hibernate.reactive.panache.PanacheEntity
 import javax.persistence.Entity
 import javax.persistence.Table
 import com.moresalt.grpc.user.Ambition as GrpcAmbition
 
 @Entity
 @Table(name = "ambition")
-open class Ambition
+data class Ambition
     (
-    open var instructions: String = "",
-    open var variety: String = "",
-    open var complexity: String = "",
-    open var social: String = ""
-    ) : PanacheEntity() {
-    companion object {
-        fun parseFromGrpc(ambition: GrpcAmbition): Ambition {
-            println(ambition)
-            return Ambition(
-                instructions = ambition.instructions,
-                variety = ambition.variety,
-                complexity = ambition.complexity,
-                social = ambition.social
-            )
-        }
-
-        fun convertToGrpc(ambition: Ambition): GrpcAmbition {
-            println(ambition)
-            return GrpcAmbition.newBuilder()
-                .setInstructions(ambition.instructions)
-                .setVariety(ambition.variety)
-                .setComplexity(ambition.complexity)
-                .setSocial(ambition.social)
-                .build()
-        }
+    var instructions: String = "",
+    var variety: String = "",
+    var complexity: String = "",
+    var social: String = "",
+) : PanacheEntity() {
+    // Construct from gRPC instance
+    constructor(ambition: GrpcAmbition) : this(
+        instructions = ambition.instructions,
+        variety = ambition.variety,
+        complexity = ambition.complexity,
+        social = ambition.social
+    )
+    fun convertToGrpc(): GrpcAmbition {
+        return GrpcAmbition.newBuilder()
+            .setInstructions(this.instructions)
+            .setVariety(this.variety)
+            .setComplexity(this.complexity)
+            .setSocial(this.social)
+            .build()
     }
 }
 

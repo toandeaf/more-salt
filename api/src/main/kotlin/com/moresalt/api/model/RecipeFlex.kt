@@ -6,10 +6,10 @@ import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
-@Entity
-@Table(name = "recipe_flex")
-open class RecipeFlex
+//@Entity
+//@Table(name = "recipe_flex")
+data class RecipeFlex
     (
-    @OneToOne open var baseRecipe: Recipe = Recipe(),
-    @OneToMany open var steps: MutableSet<Step> = mutableSetOf()
+    @OneToOne var baseRecipe: Recipe = Recipe(),
+    @OneToMany var steps: MutableSet<Step> = mutableSetOf()
     ): PanacheEntity()
