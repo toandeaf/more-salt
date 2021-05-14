@@ -1,42 +1,39 @@
 package com.moresalt.user.model
 
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntity
-import io.quarkus.hibernate.orm.panache.kotlin.PanacheEntityBase
+import io.quarkus.hibernate.reactive.panache.PanacheEntityBase
+import javax.enterprise.context.ApplicationScoped
+import javax.enterprise.context.RequestScoped
 import javax.persistence.*
 import com.moresalt.grpc.user.User as GrpcUser
 
 @Entity
 @Table(name = "usr")
-open class User
+data class User
     (
-    @Id @GeneratedValue open var id: Long? = null,
-    open var username: String = "",
-    open var email: String = "",
-    open var password: String = "",
-    @OneToOne(cascade = [CascadeType.ALL]) open var tasteProfile: TasteProfile? = null,
-    @OneToOne(cascade = [CascadeType.ALL]) open var ambitions: Ambition? = null
-    ) : PanacheEntityBase {
-    companion object {
-        fun parseFromGrpc(user: GrpcUser): User {
-            return User(
-                id = if(user.id == 0L) null else user.id,
-                username = user.username,
-                email = user.email,
-                password = user.password,
-                tasteProfile = TasteProfile.parseFromGrpc(user.tasteProfile),
-                ambitions = Ambition.parseFromGrpc(user.ambition)
-            )
-        }
-
-        fun convertToGrpc(user: User): GrpcUser {
-            val newUser = GrpcUser.newBuilder()
-                .setEmail(user.email)
-                .setPassword(user.password)
-                .setUsername(user.username)
-            user.id?.let { newUser.setId(it) }
-            user.ambitions?.let { newUser.setAmbition(Ambition.convertToGrpc(it)) }
-            user.tasteProfile?.let { newUser.setTasteProfile(TasteProfile.convertToGrpc(it)) }
-            return newUser.build()
-        }
+    @Id @GeneratedValue var id: Long? = null,
+    var username: String = "",
+    var email: String = "",
+    var password: String = "",
+    @OneToOne(cascade = [CascadeType.ALL]) var tasteProfile: TasteProfile = TasteProfile(),
+    @OneToOne(cascade = [CascadeType.ALL]) var ambitions: Ambition = Ambition(),
+) : PanacheEntityBase() {
+    // Construct from gRPC instance
+    constructor(user: GrpcUser) : this(
+        id = if (user.id != 0L) user.id else null,
+        username = user.username,
+        email = user.email,
+        password = user.password,
+        tasteProfile = TasteProfile(user.tasteProfile),
+        ambitions = Ambition(user.ambition)
+    )
+    fun convertToGrpc(): GrpcUser {
+        val newUser = GrpcUser.newBuilder()
+            .setEmail(this.email)
+            .setPassword(this.password)
+            .setUsername(this.username)
+        this.id?.let { newUser.setId(it) }
+        this.ambitions?.let { newUser.setAmbition(it.convertToGrpc()) }
+        this.tasteProfile?.let { newUser.setTasteProfile(it.convertToGrpc()) }
+        return newUser.build()
     }
 }

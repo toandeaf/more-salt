@@ -5,11 +5,11 @@ import javax.persistence.Entity
 import javax.persistence.Enumerated
 import javax.persistence.Table
 
-@Entity
-@Table(name = "cuisine")
-open class Cuisine
+//@Entity
+//@Table(name = "cuisine")
+data class Cuisine
     (
-    @Enumerated open var cuisine: Cuisine? = null,
+    @Enumerated var cuisine: Cuisine? = null,
     ): PanacheEntity() {
 
     enum class Cuisine {
